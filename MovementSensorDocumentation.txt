@@ -1,10 +1,10 @@
-    Movementsensor Documentation
+    Movementsensor(TCRT5000) Documentation
 Ports: 
     Nr.1 VCC 3.3V-5V input 
     Nr.2 GND Negativ 
     Nr.3 D0 Digitaloutput 
     Nr.4 A0 Analogoutput 
     
-effektive Reichweite:
-
+Effektive Reichweite:
     1.9-2.9 cm 
+
