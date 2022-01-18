@@ -1,0 +1,3 @@
+syntax 
+    attachInterrupt(digitalPinToInterrupt(pin), ISR, mode)
+    pins 2,3,18,19,20,21
