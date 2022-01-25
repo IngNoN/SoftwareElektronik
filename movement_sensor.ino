@@ -6,7 +6,7 @@ void setup()
 {
     Serial.begin(9600);
     pinMode(ledpin, OUTPUT);
-  pinMode(inputPIN, INPUT);
+    pinMode(inputPIN, INPUT);
   
   attachInterrupt(digitalPinToInterrupt(inputPIN), light, HIGH);
 	//attachInterrupt(digitalPinToInterrupt(inputPIN), shadow, LOW);
@@ -16,7 +16,7 @@ void light()
 {
   digitalWrite(ledpin, HIGH);
   delay(1000);
-  digitalWrite(ledpin, LOW);
+  digitalWrite(ledpin, LOW);    
   Serial.println(5);
   //delay(1000);
   //state = !state; 
@@ -36,4 +36,5 @@ void loop()
 {
   
 
-delay(100);}
+delay(100);
+}
