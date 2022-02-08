@@ -4,18 +4,27 @@ int speed = 1023;
 
 void control_motor(int motor_pin)
 {
-  analogWrite(motor_pin, speed);
-  while (true)
+  int get_sweet = 1;
+  switch(get_sweet)
   {
-    if (true)//(inputpin) //sensor signal von Benedikt - true durch inputpin ersetzenbei implementierung der Sensoren
-    {
-      delay(4000); //zu entfernen bei implementierung der Sensoren
+    case 1:
+      analogWrite(motor_pin, speed);
+      get_sweet = 2;
+    case 2:
+      //int sweets_ejected = digitalRead(inputpin);
+      delay(3000);
+      if (true)
+      {
+        get_sweet = 3;  
+      }
+      else
+        {
+          break;
+        }
+    case 3:
       analogWrite(motor_pin, 0);
-      break;  
-    }
   }
 }
-
 
 void setup(){
 
@@ -27,33 +36,20 @@ int pin = 46;
       {
           pinMode(pin, OUTPUT);
           motorPins[motor_index][direction_index] = pin++;
+          
       }
   }
 
 Serial.begin(9600);
-
 }
 
 void loop()
 {
-  int input = 5;
+  int input = 4;
   if (Serial.available() > 0) {
     input = Serial.read();
   }
-  
-  switch(input)
-  { 
-    case '1':
-      control_motor(motorPins[0][0]);
-      break;
-     case '2':
-      control_motor(motorPins[1][0]);
-      break;
-     case '3':
-      control_motor(motorPins[2][0]);
-      break;
-     case '4':
-      control_motor(motorPins[3][0]);
-      break;
-  }
+
+   int motor_index = input - '1';
+   control_motor(motorPins[motor_index][0]);
 }
