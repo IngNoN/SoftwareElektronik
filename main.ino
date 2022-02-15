@@ -3,22 +3,24 @@
 #include <Adafruit_NeoPixel.h>
 #include <avr/power.h>
 
-
-
 #define cs 10
 #define dc 9
 #define rst 8
 #define PIN 6
 
 
+int motorPins[4][2];
+int speed = 1023;
+
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
 TFT TFTscreen = TFT(cs, dc, rst);
 
-int dimensions[2] = {TFTscreen.width(), TFTscreen.height()};
-int padding_buttons = dimensions[0]*0.0125;
-int button_width = dimensions[0]*0.475;
-int textBox = dimensions[1]*0.15;
-int button_height = dimensions[1]*0.4;
+int width = TFTscreen.width();
+int height = TFTscreen.height();
+int padding_buttons = width*0.0125;
+int button_width = width*0.475;
+int textBox = height*0.15;
+int button_height = height*0.4;
 
 const int number_of_buttons = 4;
 
@@ -26,6 +28,8 @@ int colorCode[number_of_buttons][3] = {{255, 163, 0}, {25, 0, 225}, {0, 0, 255},
 int rectPosition[number_of_buttons][4] = {{0, 0, 0, 0}, {0, button_height + padding_buttons*2, 0, 0}, {button_width+padding_buttons*2, 0, 0, 0}, {button_width+padding_buttons*2, button_height + padding_buttons*2, 0, 0}};
 
 
+
+int colorCodes[4][3] = {{255, 0, 0}, {25, 0, 225}, {255, 0, 255}, {255, 136, 0}};
 
 
 void setup() {
@@ -44,6 +48,21 @@ void setup() {
   TFTscreen.setRotation(225);
   start_page();
   colorWipe(strip.Color(255,255,255),50);
+
+
+
+
+  int pin = 40;
+
+  for(int motor_index = 0; motor_index < 4; motor_index++)
+  {
+      for(int direction_index = 0; direction_index < 2; direction_index++)
+      {
+          pinMode(pin, OUTPUT);
+          motorPins[motor_index][direction_index] = pin++;
+      }
+  }
+  
 }
 
 void colorWipe(uint32_t c, uint8_t wait) {
@@ -70,29 +89,50 @@ void start_page() {
  }
 
 
-void item_out_page(int b, int g, int r) {
-  TFTscreen.background(b, g, r);
+void item_out_page(int color[]) {
+  TFTscreen.background(color[2], color[1], color[0]);
   TFTscreen.textSize(1); 
   TFTscreen.text("Bitte warten...", width*0.26, height/2-height/2*0.15);
 }
 
 void end_page() {
   TFTscreen.background(64, 255, 0);
+  colorWipe(strip.Color(0, 255, 64),50);
   TFTscreen.textSize(1); 
   TFTscreen.text("Bitte entnehmen!", width*0.21, height/2-height/2*0.2);
   TFTscreen.text("Vielen Dank!", width*0.29, height/2-height/2*0.05);
 }
 
-void item_out(int b, int g, int r) {
+void item_out(int x) {
+
+  int color[3] = {};
+  for (int i = 0; i <=2; i++){
+    color[i] = colorCodes[x-1][i];
+    Serial.println(color[i]);
+  }
   
-  
-  item_out_page(b, g, r);
-  colorWipe(strip.Color(r, g, b), 50);
-  delay(5000);  //motoren
+  item_out_page(color);
+  colorWipe(strip.Color(color[0], color[1], color[2]), 50);
+  control_motor(motorPins[x-1][0]);
   end_page();
   delay(5000);  // rausgenommen
   start_page();
   colorWipe(strip.Color(255,255,255),50);
+  
+  
+}
+
+
+void control_motor(int motor_pin)
+{
+  //while(!digitalRead(inputpin))
+  for(int i = 0; i < 10; i++)
+  {
+    analogWrite(motor_pin, speed);
+    //Serial.println(motor_pin);
+    delay(500);
+  }
+  analogWrite(motor_pin, 0);
 }
 
 
@@ -104,19 +144,19 @@ void loop() {
     switch (input){
     
     case '1':
-      item_out(255, 0, 0);
+      item_out(1);
       break;
       
     case '2':
-      item_out(25, 0, 225);
+      item_out(2);
       break;
       
     case '3':
-      item_out(255, 0, 255);
+      item_out(3);
       break;
       
     case '4':
-      item_out(255, 136, 0);
+      item_out(4);
       break;
     
     
