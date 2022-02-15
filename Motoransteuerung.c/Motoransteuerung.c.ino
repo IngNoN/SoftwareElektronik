@@ -4,26 +4,14 @@ int speed = 1023;
 
 void control_motor(int motor_pin)
 {
-  int get_sweet = 1;
-  switch(get_sweet)
+  //while(!digitalRead(inputpin))
+  for(int i = 0; i < 10; i++)
   {
-    case 1:
-      analogWrite(motor_pin, speed);
-      get_sweet = 2;
-    case 2:
-      //int sweets_ejected = digitalRead(inputpin);
-      delay(3000);
-      if (true)
-      {
-        get_sweet = 3;  
-      }
-      else
-        {
-          break;
-        }
-    case 3:
-      analogWrite(motor_pin, 0);
+    analogWrite(motor_pin, speed);
+    //Serial.println(motor_pin);
+    delay(500);
   }
+  analogWrite(motor_pin, 0);
 }
 
 void setup(){
@@ -36,7 +24,6 @@ int pin = 46;
       {
           pinMode(pin, OUTPUT);
           motorPins[motor_index][direction_index] = pin++;
-          
       }
   }
 
@@ -45,11 +32,14 @@ Serial.begin(9600);
 
 void loop()
 {
-  int input = 4;
+  int input = 0;
   if (Serial.available() > 0) {
     input = Serial.read();
   }
-
-   int motor_index = input - '1';
-   control_motor(motorPins[motor_index][0]);
+  int motor_index = input - '1';
+  //Serial.println(motorPins[motor_index][0]);
+  if (motor_index <= 3 && motor_index >= 0)
+  {
+    control_motor(motorPins[motor_index][0]);
+  }
 }
