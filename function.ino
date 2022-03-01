@@ -2,7 +2,7 @@ void waitForSensor (int inputPin)
 {
     while(true)
       {
-        if(digitalRead(inputPin) == HIGHT)
+        if(digitalRead(inputPin) == HIGH)
         {
             break;
         }
