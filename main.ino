@@ -123,15 +123,22 @@ void item_out(int x) {
 }
 
 
+void waitForSensor (int inputPin)
+{
+    while(true)
+      {
+        if(digitalRead(inputPin) == HIGH)
+        {
+            break;
+        }
+      }
+        return;
+}
+
 void control_motor(int motor_pin)
 {
-  //while(!digitalRead(inputpin))
-  for(int i = 0; i < 10; i++)
-  {
-    analogWrite(motor_pin, speed);
-    //Serial.println(motor_pin);
-    delay(500);
-  }
+  analogWrite(motor_pin, speed);
+  waitForSensor(motor_pin);
   analogWrite(motor_pin, 0);
 }
 
