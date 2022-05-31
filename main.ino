@@ -5,17 +5,17 @@
 #include <avr/power.h>
 
 
-#define PIN 6
-#define LCD_CS A3 // Chip Select goes to Analog 3
-#define LCD_CD A2 // Command/Data goes to Analog 2
-#define LCD_WR A1 // LCD Write goes to Analog 1
-#define LCD_RD A0 // LCD Read goes to Analog 0
+#define PIN 46
+#define LCD_CS 18 // Chip Select goes to Analog 3
+#define LCD_CD 17 // Command/Data goes to Analog 2
+#define LCD_WR 16 // LCD Write goes to Analog 1
+#define LCD_RD 15 // LCD Read goes to Analog 0
 
-#define LCD_RESET A4 // Can alternately just connect to Arduino's reset pin
+#define LCD_RESET 19 // Can alternately just connect to Arduino's reset pin
 
 #define BLACK   0x0000
 #define BLUE    0x001F
-#define RED     0xFF0000
+#define RED     0xFF00
 #define GREEN   0x07E0
 #define CYAN    0x07FF
 #define MAGENTA 0xF81F
@@ -40,8 +40,6 @@
 #define TS_MINY 75
 #define TS_MAXY 930
 
-#define MINPRESSURE 10
-#define MAXPRESSURE 1000
 //#define 
 
 #include <MCUFRIEND_kbv.h>
@@ -70,29 +68,46 @@ int rectPosition[number_of_buttons][4] = {{0, 0, 0, 0}, {0, button_height + padd
 
 
 int colorCode[number_of_buttons][3] = {{0, 0, 255}, {255, 0, 0}, {255, 136, 0}, {255, 0, 255}};
-int colorCodes[4] = {KITKAT, SNICKERS, BOUNTY, TWIX};
+int colorCodes[4] = {KITKAT, BOUNTY, SNICKERS, TWIX};
 
 void start_page() {
-  
-  tft.fillScreen(WHITE);
-  tft.setRotation(225);
-  
-  tft.setCursor(5, 5);
-  tft.setTextSize(3); 
-  tft.setTextColor(BLACK);
-  tft.println("Tippen Sie auf ein Produkt");
+    tft.fillScreen(WHITE);
+    tft.setTextColor(BLACK);
+    tft.setTextSize(3);
+    tft.setCursor(5, 5);
+    tft.println("Tippen Sie auf ein Produkt");
+    
+    for(int i=0; i<=3; i++){
+      if (i==0){
+        tft.fillRect(padding_buttons+rectPosition[i][0], textBox+rectPosition[i][1], button_width+rectPosition[i][2], button_height+rectPosition[i][3], KITKAT);
+        tft.setCursor(padding_buttons+rectPosition[i][0]+55, button_height+rectPosition[i][3] - textBox+rectPosition[i][1]);
+        tft.println("KitKat");
+      } else if (i==1){
+        tft.fillRect(padding_buttons+rectPosition[i][0], textBox+rectPosition[i][1], button_width+rectPosition[i][2], button_height+rectPosition[i][3], BOUNTY);
+        tft.setCursor(padding_buttons+rectPosition[i][0]+60, button_height+rectPosition[i][3] - textBox+rectPosition[i][1]);
+        tft.println("Bounty"); 
+      } else if (i==2){
+        tft.fillRect(padding_buttons+rectPosition[i][0], textBox+rectPosition[i][1], button_width+rectPosition[i][2], button_height+rectPosition[i][3], SNICKERS);
+        tft.setCursor(padding_buttons+rectPosition[i][0]+40, button_height+rectPosition[i][3] - textBox+rectPosition[i][1]);
+        tft.println("Snickers");
+      } else if (i==3){
+        tft.fillRect(padding_buttons+rectPosition[i][0], textBox+rectPosition[i][1], button_width+rectPosition[i][2], button_height+rectPosition[i][3], TWIX);
+        tft.setCursor(padding_buttons+rectPosition[i][0]+75, button_height+rectPosition[i][3] - textBox+rectPosition[i][1]);
+        tft.println("Twix");
+      }
+      tft.drawRect(padding_buttons+rectPosition[i][0], textBox+rectPosition[i][1], button_width+rectPosition[i][2], button_height+rectPosition[i][3], BLACK);
+      
 
-  for (int i=0; i<number_of_buttons; i++) {
-    tft.fillRect(padding_buttons+rectPosition[i][0], textBox+rectPosition[i][1], button_width+rectPosition[i][2], button_height+rectPosition[i][3], colorCodes[i]);
-    tft.drawRect(padding_buttons+rectPosition[i][0], textBox+rectPosition[i][1], button_width+rectPosition[i][2], button_height+rectPosition[i][3], BLACK);
-  }
-
+    }
 }
 
 void setup(void) {
   Serial.begin(9600);
+  Serial.println("Started");
   tft.reset();  
   tft.begin(0x9486);
+  tft.setRotation(225);
+  tft.setTextSize(3);
   delay(10000);
   start_page(); 
 
@@ -102,7 +117,7 @@ void setup(void) {
   strip.setBrightness(25);
   strip.show(); // Initialize all pixels to 'off'
   pinMode(5,INPUT_PULLUP);
-  pinMode(6,OUTPUT);
+  pinMode(46,OUTPUT);
   
   colorWipe(strip.Color(255,255,255),25);
 
@@ -123,7 +138,7 @@ void setup(void) {
 }
 
 void colorWipe(uint32_t c, uint8_t wait) {
-  for(uint16_t i=0; i<strip.numPixels(); i++) {
+  for(uint16_t i=0; i<3; i++) {
     strip.setPixelColor(i, c);
     strip.show();
     delay(wait*0.25);
@@ -142,30 +157,10 @@ void control_motor(int motor_pin)
   analogWrite(motor_pin, 0);
 }
 
-/*void loop(void) {
-  TSPoint p = ts.getPoint();
-  digitalWrite(13, LOW);
-  if (p.z > 500){
-    if (p.x < 501 && p.x > 209 && p.y < 551 && p.y > 199){
-    item_out(1);
-    }  
-    else if (p.x < 501 && p.x > 209 && p.y < 950 && p.y > 569){
-      item_out(2);
-    }
-  }
-  item_out(1);
-}
-*/
 
 
 
 
-
-void item_out_page() { //int color[]
-  tft.fillScreen(GREEN); // color[2], color[1], color[0]
-  tft.setTextSize(3); 
-  tft.println("Bitte warten..."); // width*0.26, height/2-height/2*0.15
-  }
 
 
 void end_page() {
@@ -173,9 +168,9 @@ void end_page() {
   colorWipe(strip.Color(0, 255, 64),25);
   tft.setTextSize(4); 
   tft.setCursor(60, 110);
-  tft.println("Bitte entnehmen!"); // width*0.21, height/2-height/2*0.2
+  tft.println("Bitte entnehmen!");
   tft.setCursor(95, 145);
-  tft.println("Vielen Dank!"); // width*0.29, height/2-height/2*0.05
+  tft.println("Vielen Dank!");
 }
 
 
@@ -188,10 +183,8 @@ void item_out(int x) {
   tft.setCursor(60, 140);
   tft.setTextSize(4);
   tft.println("Bitte warten...");
-  delay(2000);
-  colorWipe(strip.Color(colorCode[x][0], colorCode[x][1], colorCode[x][2]), 25);
-  
-  Serial.println(motorPins[x-1][0]);
+  colorWipe(strip.Color(colorCode[x-1][0], colorCode[x-1][1], colorCode[x-1][2]), 25);
+  Serial.println(x);
   control_motor(motorPins[x-1][0]);
   
   end_page();
@@ -205,8 +198,6 @@ void item_out(int x) {
 }
 
 void loop() {
-  digitalWrite(13, HIGH);
-  digitalWrite(13, LOW);
 
   TSPoint p = ts.getPoint();
   if (p.z > 200) {
@@ -216,9 +207,9 @@ void loop() {
       item_out(1);
       
     } else if (p.x<829 && p.x>524 && p.y<549 && p.y>199){
-      item_out(2);
-    } else if (p.x<499 && p.x>209 && p.y<951 && p.y>574){
       item_out(3);
+    } else if (p.x<499 && p.x>209 && p.y<951 && p.y>574){
+      item_out(2);
     } else if (p.x<499 && p.x>209 && p.y<549 && p.y>199){
       item_out(4);
     }
