@@ -4,14 +4,13 @@
 #include <Adafruit_NeoPixel.h>
 #include <avr/power.h>
 
+#define PIN 44
+#define LCD_CS A3 // Chip Select goes to Analog 3
+#define LCD_CD A2 // Command/Data goes to Analog 2
+#define LCD_WR A1 // LCD Write goes to Analog 1
+#define LCD_RD A0 // LCD Read goes to Analog 0
 
-#define PIN 46
-#define LCD_CS 18 // Chip Select goes to Analog 3
-#define LCD_CD 17 // Command/Data goes to Analog 2
-#define LCD_WR 16 // LCD Write goes to Analog 1
-#define LCD_RD 15 // LCD Read goes to Analog 0
-
-#define LCD_RESET 19 // Can alternately just connect to Arduino's reset pin
+#define LCD_RESET A4 // Can alternately just connect to Arduino's reset pin
 
 #define BLACK   0x0000
 #define BLUE    0x001F
@@ -67,7 +66,7 @@ int rectPosition[number_of_buttons][4] = {{0, 0, 0, 0}, {0, button_height + padd
 
 
 
-int colorCode[number_of_buttons][3] = {{0, 0, 255}, {255, 0, 0}, {255, 136, 0}, {255, 0, 255}};
+int colorCode[number_of_buttons][3] = {{255, 0, 0}, {255, 0, 255}, {0, 0, 255}, {255, 136, 0}};
 int colorCodes[4] = {KITKAT, BOUNTY, SNICKERS, TWIX};
 
 void start_page() {
@@ -138,7 +137,7 @@ void setup(void) {
 }
 
 void colorWipe(uint32_t c, uint8_t wait) {
-  for(uint16_t i=0; i<3; i++) {
+  for(uint16_t i=0; i<60; i++) {
     strip.setPixelColor(i, c);
     strip.show();
     delay(wait*0.25);
@@ -165,7 +164,7 @@ void control_motor(int motor_pin)
 
 void end_page() {
   tft.fillScreen(GREEN);
-  colorWipe(strip.Color(0, 255, 64),25);
+  colorWipe(strip.Color(7, 224, 0),25);
   tft.setTextSize(4); 
   tft.setCursor(60, 110);
   tft.println("Bitte entnehmen!");
@@ -173,13 +172,25 @@ void end_page() {
   tft.println("Vielen Dank!");
 }
 
+void select_item_amount(int color){
+  tft.fillScreen(colorCodes[color]);
+  tft.setRotation(225);
+  tft.setCursor(50, 140);
+  tft.println("Anzahl");
+
+  tft.fillRect(160, 120, 60, 60, GREEN);
+
+  tft.drawRect(160, 120, 60, 60, BLACK);
+  
+  delay(10000);
+}
 
 void item_out(int x) {
-
-  
   tft.begin(0x9486);
-  tft.fillScreen(colorCodes[x-1]);
   tft.setRotation(225);
+  //select_item_amount(x-1);
+
+  tft.fillScreen(colorCodes[x-1]);
   tft.setCursor(60, 140);
   tft.setTextSize(4);
   tft.println("Bitte warten...");
@@ -192,27 +203,26 @@ void item_out(int x) {
   delay(1000);  // rausgenommen
   start_page();
   colorWipe(strip.Color(255,255,255),25);
-   
-  
-  
 }
 
 void loop() {
 
   TSPoint p = ts.getPoint();
-  if (p.z > 200) {
+      if (p.z > 200) {
+        if (p.x<829 && p.x>524 && p.y<951 && p.y>574){   
+          item_out(1);
+          
+        } else if (p.x<829 && p.x>524 && p.y<549 && p.y>199){
+          item_out(3);
+        } else if (p.x<499 && p.x>209 && p.y<951 && p.y>574){
+          item_out(2);
+        } else if (p.x<499 && p.x>209 && p.y<549 && p.y>199){
+          item_out(4);
+        }
+      }
+
+
     
-    if (p.x<829 && p.x>524 && p.y<951 && p.y>574){   
-      
-      item_out(1);
-      
-    } else if (p.x<829 && p.x>524 && p.y<549 && p.y>199){
-      item_out(3);
-    } else if (p.x<499 && p.x>209 && p.y<951 && p.y>574){
-      item_out(2);
-    } else if (p.x<499 && p.x>209 && p.y<549 && p.y>199){
-      item_out(4);
-    }
-  }
+  
   
 }
